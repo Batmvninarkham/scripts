@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+MON_IF="wlan0mon"
+
+echo "[+] Checking for monitor interface..."
+
+if ip link show "$MON_IF" >/dev/null 2>&1; then
+    echo "[+] Stopping monitor mode on $MON_IF..."
+    sudo airmon-ng stop "$MON_IF" || echo "[!] Failed to stop monitor mode."
+else
+    echo "[*] Monitor interface $MON_IF not found."
+fi
+
+echo "[+] Cleanup complete."
+echo "[+] Adapter should now be safe to unplug."

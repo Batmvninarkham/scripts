@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# wifi-quick-up.sh - Quick monitor mode
+sudo airmon-ng start wlan0 2>/dev/null
+echo "[+] Monitor interface should be ready."
+iwconfig | grep -E "wlan|mon"
