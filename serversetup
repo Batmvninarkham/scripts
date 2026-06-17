@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+ #vim
+# bash
+# bashrc
+# vimrc
+   # zsh --optional
+# ssh  and mDNS
+ # nginx
+pkg upgrade
+whoareyou(){
+   echo -n "who are you (can either be a host or client): "
+   command read REPLY
+       while [ "$REPLY" != "client" ] && [ "$REPLY" != "host"  ]; do
+           echo  -n "invalid option :  "
+           command read REPLY
+        done
+        
+        add() {
+           echo "configuring ssh to host without password authentication consider using a phrase:.!"
+         echo "this is definetly the wrong way to do this am sure your local sys admin will have a headache with this but here you can either tweak this or just run it !!!!"
+         sleep 1
+         ssh-keygen -t ed25519
+         echo -n " remotes username: "
+         command read USER
+         echo -n "serverip or hostname: "
+         command read SERVER
+
+            echo  "attempting to add you to hosts known hosts..."
+            echo -n "enter password of the remote: "
+         ssh-copy-id "$USER"@"$SERVER"
+             return 0         
+      }
+      mDNSconfig(){
+         echo -n "setup hostname for this machine: "
+         command read name
+         sysrc hostname="$name"
+      echo "configuring mDNS dependencies  avahi avahi-app nss_mdnssysrc"
+      pkg install avahi avahi-app nss_mdns 
+      sysrc dbus_enable=YES
+      sysrc avahi_daemon_enable=YES
+      service dbus start
+      service avahi-daemon start
+      echo "done"
+      }
+      sshconfig(){
+         echo "configuring ssh..."
+      sysrc sshd_enable=YES
+      service sshd start
+      echo "done"
+       }
+
+   if [ "$REPLY" = "client"   ];then 
+      add
+   fi
+   if [ "$REPLY" = "host"   ];then 
+              sshconfig
+         echo -n "configure mDNS?(y/n) "
+         command read REPLY
+      while [ "$REPLY"!= "y" ] && [ "$REPLY"!= "n"  ]; do
+         echo -n "invalid option: "
+         command read REPLY
+      done
+      if [ "$REPLY" = "y" ];then 
+         mDNSconfig
+      else
+         return 0
+      fi
+      echo "done"
+      return 0
+   fi
+                }
+DOTFILE='dotfiles'
+getdotfiles(){
+local URL="https://github.com/Batmvninarkham/dotfiles.git"
+command -v git >/dev/null 2>&1 || pkg install -y git || exit 1
+cd "$HOME"
+git clone "$URL"
+}
+installbash(){
+ getdotfiles  
+echo "importing bashrc from remote: ...... "
+if [[ -d "$HOME/$DOTFILE" ]];then
+cd "$HOME/$DOTFILE" && cp .bashrc "$HOME"
+fi
+command -v bash >/dev/null 2>&1 || pkg install -y bash
+echo "you may need to source the bashrc"
+sleep 1
+ }
+
+installvim(){
+  echo -n "the following dependecies are needed for the vimrc npm, git, node continue with install: (y/n) "
+
+       command read REPLY
+        while [ "$REPLY" != "y" ] && [ "$REPLY" != "n"  ]; do
+           echo  -n "invalid option : (y/n) "
+           command read REPLY
+        done
+        if [ "$REPLY" = "n"   ];then 
+            sleep 1
+            echo '[+] exiting ...'
+          return 0 
+         fi
+         if [ "$REPLY" = "y"  ]; then 
+            for cmd in vim node npm git; do
+         command -v "$cmd" >/dev/null 2>&1 || pkg install -y "$cmd"
+            done
+            echo "importing vimrc from remote..."
+            if [[ -d "$HOME/$DOTFILE"  ]];then
+               cd "$HOME/$DOTFILE" && cp .vimrc "$HOME"
+            fi
+        return 0
+        fi
+}
+configureSsh(){
+   echo -n "configure ssh ?(y/n) "
+   command read REPLY
+   while [ "$REPLY" != "y" ] && [  "$REPLY" != "n"]; do 
+   echo -n "invalid option! "
+   command read REPLY
+   done
+   
+        if [ "$REPLY" = "n"   ];then 
+            sleep 1
+            echo '[+] exiting ...'
+            return  0 
+         fi
+         if [ "$REPLY" = "y"  ]; then 
+            sysrc sshd_enable=YES
+            service sshd start
+
+        return 0
+        fi
+   }
+configurenginx(){
+   echo "configuring nginx...."
+   command -v nginx >/dev/null 2>&1 || pkg install -y nginx
+sysrc nginx_enable="YES"  
+service nginx restart
+echo "this is a basic setup please edit the nginx config file eg sudo vim  /usr/local/etc/nginx/nginx.conf"
+}
