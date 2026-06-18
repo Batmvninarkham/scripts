@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+# building lightppd from source 
+[ "$(id -u)" -eq 0 ] || {
+    echo "Please run as root."
+        exit 1
+      }
+
+cd "$HOME"
+echo "minimum  lightppd build from source... git needed  ..."
+sleep 1
+command -v git >/dev/null 2>&1 || pkg install git.
+ # initial checkout
+git clone "https://git.lighttpd.net/lighttpd/lighttpd1.4.git"
+cd lighttpd1.4
+ # subsequent updates (to obtain latest source)
+git pull
+
+exec sh ./dependInstall
+#================
+#Automake
+#=================
+echo "AUtOMAKE beginning...... "
+sleep 2
+./autogen.sh
+./configure -C --prefix=/usr/local  # ./configure --help for additional options
+make -j 4
+make check
+sudo make install
+echo "check for errors but if correctly installed should be ok."
+exit 0

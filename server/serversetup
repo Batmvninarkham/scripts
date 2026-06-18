@@ -6,7 +6,18 @@
    # zsh --optional
 # ssh  and mDNS
  # nginx
-pkg upgrade
+ # ==================================================
+ #  functions in this script include
+ #
+ #configureSsh
+ #configurenginx
+ #fzf
+ #whoareyou --mDNSconfig --add #this are helper functions in the parent function
+ #installvim
+ #installbash
+ #getdotfiles ---should not be explicitly called but functions requiring it should call it
+ #=================================================
+pkg update -y
 whoareyou(){
    echo -n "who are you (can either be a host or client): "
    command read REPLY
@@ -74,7 +85,12 @@ getdotfiles(){
 local URL="https://github.com/Batmvninarkham/dotfiles.git"
 command -v git >/dev/null 2>&1 || pkg install -y git || exit 1
 cd "$HOME"
-git clone "$URL"
+if [[ -d "$HOME/$DOTFILE" ]];then
+mkdir bk123up && cd bk123up && git clone "$URL"
+DOTFILE="$HOME/bk123up/dotfiles"
+else
+   git clone "$URL"
+fi
 }
 installbash(){
  getdotfiles  
@@ -137,4 +153,14 @@ configurenginx(){
 sysrc nginx_enable="YES"  
 service nginx restart
 echo "this is a basic setup please edit the nginx config file eg sudo vim  /usr/local/etc/nginx/nginx.conf"
+}
+fuzzy(){
+   echo "installling fzf and bat ..."
+for cmd in fzf bat ;do
+   command -v "$cmd" >dev/null 2>&1 || pkg install -y "$cmd"
+done
+cat >> ~/.zshrc <<'EOF'
+alias nf='fzf -m --preview="bat --color=always {}" --bind "enter:become(vim {})"'
+EOF
+source ~/.zshrc
 }
