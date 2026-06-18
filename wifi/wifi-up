@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# wifi-up.sh - Full monitor mode setup
+
+echo "[+] Killing interfering processes..."
+sudo airmon-ng check kill
+
+echo "[+] Setting up monitor mode..."
+sudo ip link set wlan0 down
+sudo iw dev wlan0 set type monitor
+sudo ip link set wlan0 up
+
+# Rename to wlan0mon
+sudo ip link set wlan0 name wlan0mon 2>/dev/null || echo "Already named wlan0mon"
+
+echo "[+] Monitor mode ready!"
+iwconfig wlan0mon
