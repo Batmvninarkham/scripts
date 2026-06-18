@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# wifi-quick-down.sh - Quick cleanup
-
-sudo ip link set wlan0mon down 2>/dev/null
-sudo iw dev wlan0mon del 2>/dev/null
-sudo systemctl restart NetworkManager
-echo "[+] Quick cleanup done. Adapter can be unplugged."
