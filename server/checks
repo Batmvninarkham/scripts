@@ -17,8 +17,8 @@ if ! command -v bash >/dev/null 2>&1; then
          fi
          if [ "$REPLY" = "y"  ]; then 
              sleep 2
-          echo "good boy:..."  
-
+        pkg install -y bash
+        exec bash ./serversetup
     
         exit 0
         fi
@@ -33,4 +33,4 @@ if ! command -v bash >/dev/null 2>&1; then
     exit 1
 fi
 
- exec bash ./serversetup
+
