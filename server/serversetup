@@ -17,6 +17,14 @@
  #installbash
  #getdotfiles ---should not be explicitly called but functions requiring it should call it
  #=================================================
+ #date configuration
+
+sudo ntpdate pool.ntp.org
+  sudo sysrc ntpd_enable=YES\nsudo service ntpd start
+#fin
+
+
+
 pkg update -y
 whoareyou(){
    echo -n "who are you (can either be a host or client): "
@@ -164,3 +172,4 @@ alias nf='fzf -m --preview="bat --color=always {}" --bind "enter:become(vim {})"
 EOF
 source ~/.zshrc
 }
+
